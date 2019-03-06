@@ -1,0 +1,5 @@
+THE MAP
+
+the brighter pixels give more ore per cycle but run out sooner
+
+the dimmer pixels give less per cycle but last longer and provide more over the life of the mine
