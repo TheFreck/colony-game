@@ -11,7 +11,24 @@ class Container extends Component {
     minerLocationX: "",
     minerLocationY: "",
     responseObject: {},
-    responseArray: []
+    responseArray: [],
+    createMiner: (name, x, y) => {
+      console.log("hit global state createMiner")
+      this.setState({
+        minerLocationX: x,
+        minerLocationY: y,
+        minerName: name
+      })
+      this.handleFormSubmit("Post")
+    },
+    updateGlobalState: event => {
+      event.preventDefault();
+      let name = event.target.name;
+      let value = event.target.value;
+      console.log("update global state name: ", name);
+      console.log("update global state value: ", value)
+      this.setState({ [name]: value });
+    }
   };
 
   componentDidMount() {
@@ -36,18 +53,24 @@ class Container extends Component {
     });
   };
 
-  handleFormSubmit = event => {
-    event.preventDefault();
-    let crud = event.target.name;
+  handleFormSubmit = crud => {
+    // event.preventDefault();
+    // console.log("event: ", event);
+    // let crud = event.target.name;
     let minerName = this.state.minerName;
+    let x = this.state.minerLocationX;
+    let y = this.state.minerLocationY;
+
 
     let minerObject = {
       minerName,
       minerLocation: {
-        x: this.state.minerLocationX,
-        y: this.state.minerLocationY
+        x,
+        y
       }
     };
+
+
     switch(crud) {
       case "Get":
         API.get(minerName)
@@ -57,6 +80,7 @@ class Container extends Component {
         })
         break;
       case "Post":
+        console.log("switch minerObject: ", minerObject);
         API.post(minerObject)
         .then(response => {
           console.log("response: ", response);

@@ -5,17 +5,19 @@ import API from "../../utils/API";
 
 class Map extends Component {
   state = {
+    globalState: this.props.state,
     mapName: "",
     xAxisSeed: [],
     yAxisSeed: [],
     mapOut: {},
-    detail: 30,
+    detail: 20,
     mapSize: 600,
     padding: 30
   }
 
   
   generateMap = (detail, finishedMap) => {
+    console.log("globalState from map: ", this.state.globalState);
     let xAxisSeed = [1];
     let yAxisSeed = [1];
     let xAxisSeedPercent = [];
@@ -140,28 +142,29 @@ class Map extends Component {
           style={{
             height: `${mapSize + 2 * this.state.padding}px`,
             width: `${mapSize + 2 * this.state.padding}px`,
-            padding: this.state.padding
+            padding: this.state.padding,
+            margin: "20px"
           }}
         >
           {array.map(row => {
             counter ++;
             return(
-              <div
+              <MapRow
                 className="mapRow"
-                key={printMap[row][0]}
+                key={Math.floor(Math.random() * 10000000)}
                 style={{
-                   height: this.state.mapSize / this.state.detail
+                  height: this.state.mapSize / this.state.detail,
+                  margin: 0,
+                  padding: 0
                 }}
-              >
-                <MapRow
-                  row={row}
-                  detail={this.state.detail}
-                  series={this.series}
-                  rowData={printMap[row]}
-                  keys={counter}
-                  mapSize={this.state.mapSize}
-                />
-              </div>
+                row={row}
+                detail={this.state.detail}
+                series={this.series}
+                rowData={printMap[row]}
+                keys={counter}
+                mapSize={this.state.mapSize}
+                state={this.state}
+              />
             )
           })}
         </div>
