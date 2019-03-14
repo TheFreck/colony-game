@@ -5,19 +5,19 @@ import API from "../../utils/API";
 
 class Map extends Component {
   state = {
-    globalState: this.props.state,
+    upState: this.props.state,
     mapName: "",
     xAxisSeed: [],
     yAxisSeed: [],
     mapOut: {},
-    detail: 20,
+    detail: 30,
     mapSize: 600,
     padding: 30
   }
 
   
   generateMap = (detail, finishedMap) => {
-    console.log("globalState from map: ", this.state.globalState);
+    console.log("upState from map: ", this.state.upState);
     let xAxisSeed = [1];
     let yAxisSeed = [1];
     let xAxisSeedPercent = [];
@@ -30,8 +30,8 @@ class Map extends Component {
       xAxisSeed.push(newX);
       yAxisSeed.push(newY);
     }
-    console.log("xAxisSeed: ", xAxisSeed);
-    console.log("x min: ", Math.min(...xAxisSeed));
+    // console.log("xAxisSeed: ", xAxisSeed);
+    // console.log("x min: ", Math.min(...xAxisSeed));
     for(let i=0; i<detail; i++) {
       let xPercentNumer = xAxisSeed[i] - Math.min(...xAxisSeed);
       let xPercentDenom = Math.max(...xAxisSeed) - Math.min(...xAxisSeed);
@@ -43,15 +43,12 @@ class Map extends Component {
       let newerY = yPercentNumer / yPercentDenom;
       yAxisSeedPercent.push(newerY);
     }
-    console.log(xAxisSeed, xAxisSeedPercent)
-    console.log(yAxisSeed, yAxisSeedPercent)
     this.setState({
       ...this.state,
       xAxisSeed: xAxisSeedPercent,
       yAxisSeed: yAxisSeedPercent,
       detail
     })
-    // console.log("this.state: ", this.state);
     let mapOut = {};
     for(let i=0; i<yAxisSeed.length; i++) {
       mapOut[i] = [];
@@ -59,7 +56,6 @@ class Map extends Component {
         let newPixel = this.state.yAxisSeed[i] * this.state.xAxisSeed[j];
         mapOut[i].push(newPixel);
       }
-      // console.log("mapOut: ", mapOut[i]);
     }
     this.setState({
       mapOut: mapOut
@@ -69,9 +65,11 @@ class Map extends Component {
   
   componentWillMount = () => {
     // console.log("map");
-    this.generateMap(this.state.detail, finishedMap => {
-      // console.log("the map: ", finishedMap);
-    })
+    if(this.state.xAxisSeed) {
+      this.generateMap(this.state.detail, finishedMap => {
+        console.log("the map: ", finishedMap);
+      })
+    }
   }
 
   series = () => {
@@ -84,6 +82,7 @@ class Map extends Component {
 
   saveMap = event => {
     event.preventDefault();
+    console.log("event.target: ", event.target);
     let map = {
       mapName: this.state.mapName,
       x: this.state.xAxisSeed,
@@ -96,11 +95,15 @@ class Map extends Component {
     .catch(err => console.log("save map error: ", err));
   }
 
+
+
   handleChange = event => {
     event.preventDefault();
     console.log("event.target.name: ", event.target.name);
     console.log("event.target.value: ", event.target.value);
-    this.setState({ [event.target.name]: event.target.value })
+    this.setState({ 
+      [event.target.name]: event.target.value 
+    })
   }
 
   render() {
@@ -110,7 +113,7 @@ class Map extends Component {
     for(let i=0; i<this.state.detail; i++) {
       array.push(i);
     }
-    console.log("array: ", array);
+    // console.log("array: ", array);
     let counter = 0;
     return(
       <div className="mapHousing">
@@ -119,10 +122,15 @@ class Map extends Component {
             type="text"
             onChange={this.handleChange}
             name="mapName"
+            value={this.state.mapName}
           />
           <Button
             click={this.saveMap}
             id="Save Map"
+          />
+          <Button
+            click={this.getMap}
+            id="Get"
           />
         </form>
         <div>
@@ -155,7 +163,7 @@ class Map extends Component {
                 style={{
                   height: this.state.mapSize / this.state.detail,
                   margin: 0,
-                  padding: 0
+                  padding: 0,
                 }}
                 row={row}
                 detail={this.state.detail}
@@ -164,6 +172,8 @@ class Map extends Component {
                 keys={counter}
                 mapSize={this.state.mapSize}
                 state={this.state}
+                updateGlobalState={this.props.updateGlobalState}
+                createMiner={this.props.createMiner}
               />
             )
           })}

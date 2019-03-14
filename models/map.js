@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const models = require("../models");
 
 const mapSchema = new Schema({
   mapName: {
@@ -13,7 +14,11 @@ const mapSchema = new Schema({
   y: {
     type: Array,
     required: true
-  }
+  },
+  // miners: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: models.Miner
+  // }
 })
 
 const Map = mongoose.model("Map", mapSchema);

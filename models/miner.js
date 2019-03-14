@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Moment = require("moment");
 
 const minerSchema = new Schema({
   minerName: {
@@ -17,10 +16,22 @@ const minerSchema = new Schema({
       required: true
     }
   },
+  purity: {
+    type: Number,
+    min: 0,
+    max: 1,
+    required: true,
+    default: 0
+  },
   fillLevel: {
     type: Number,
     min: 0,
     max: 100,
+    required: true,
+    default: 0
+  },
+  iteration: {
+    type: Number,
     required: true,
     default: 0
   }

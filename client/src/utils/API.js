@@ -30,5 +30,10 @@ export default {
     console.log("saveMap: ");
     console.log(query);
     return axios.post("api/mapRoutes", query);
+  },
+  findMap: query => {
+    console.log("findMap: ");
+    console.log(query);
+    return axios.get("api/mapRoutes", query);
   }
 };

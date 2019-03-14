@@ -6,42 +6,75 @@ import SavedList from "./childComponents/SavedList";
 
 class Container extends Component {
   state = {
-    map: true,
+    map: false,
     minerName: "",
-    minerLocationX: "",
-    minerLocationY: "",
+    minerLocationX: 0,
+    minerLocationY: 0,
     responseObject: {},
     responseArray: [],
-    createMiner: (name, x, y) => {
-      console.log("hit global state createMiner")
-      this.setState({
-        minerLocationX: x,
-        minerLocationY: y,
-        minerName: name
-      })
-      this.handleFormSubmit("Post")
-    },
-    updateGlobalState: event => {
-      event.preventDefault();
-      let name = event.target.name;
-      let value = event.target.value;
-      console.log("update global state name: ", name);
-      console.log("update global state value: ", value)
-      this.setState({ [name]: value });
-    }
+    minerLocationArray: []
   };
 
   componentDidMount() {
     // console.log("it's off to the races");
+    let list = [];
+    for(let i=0; i<10; i++) {
+      list.push(i);
+    }
+    console.log("list: ", list);
     this.gitem();
   };
   
   gitem = () => {
     API.getMany()
     .then(response => {
-      // console.log("on mount response.data: ", response.data);
-      this.setState({ responseArray: response.data })
+      console.log("on mount response.data: ", response);
+      console.log("container state: ", this.state);
+      let minerLocationArrayStandIn = this.state.minerLocationArray;
+      for(let i=0; i<minerLocationArrayStandIn.length; i++) {
+        minerLocationArrayStandIn.push(response.data[i].minerLocation);
+
+      }
+      console.log("minerLocationArrayStandIn: ", minerLocationArrayStandIn);
+      this.setState({ 
+        ...this.state,
+        responseArray: response.data,
+        minerLocationArray: response.data.minerLocation
+      })
     })
+  }
+
+  updateGlobalState = event => {
+    event.preventDefault();
+    console.log("update global state event.target: ", event.target);
+    let name = event.target.name;
+    let value = event.target.value;
+    console.log("update global state name: ", name);
+    console.log("update global state value: ", value)
+    this.setState({ [name]: value });
+  }
+
+  createMiner = (name, x, y, purity) => {
+    console.log("hit global state createMiner: ", purity)
+
+    let stateObject = {
+      minerLocationX: x,
+      minerLocationY: y,
+      minerName: name,
+      purity
+    }
+    this.setState(stateObject)
+    stateObject.crud = "Post";
+    this.doIt(stateObject)
+  }
+
+  findMap = map => {
+    API.findMap({ mapName: map })
+    .then(mapReturn => {
+      console.log("mapReturn: ", mapReturn);
+      return mapReturn;
+    })
+    .catch(err => console.log("findMap error: ", err));
   }
 
   handleInputChange = event => {
@@ -53,13 +86,25 @@ class Container extends Component {
     });
   };
 
-  handleFormSubmit = crud => {
-    // event.preventDefault();
-    // console.log("event: ", event);
-    // let crud = event.target.name;
-    let minerName = this.state.minerName;
-    let x = this.state.minerLocationX;
-    let y = this.state.minerLocationY;
+  handleFormSubmit = event => {
+    event.preventDefault();
+    console.log("event.target: ", event.target);
+    let stateObject = {
+      minerName: this.state.minerName,
+      minerLocationX: this.state.minerLocationX,
+      minerLocationY: this.state.minerLocationY,
+      crud: event.target.name
+    }
+    this.doIt(stateObject);
+  }
+
+  doIt = stateObject => {
+    let minerName = stateObject.minerName;
+    let x = stateObject.minerLocationX;
+    let y = stateObject.minerLocationY;
+    let purity = stateObject.purity;
+    let crud = stateObject.crud;
+    console.log("x minerName y: ", this.state);
 
 
     let minerObject = {
@@ -67,7 +112,8 @@ class Container extends Component {
       minerLocation: {
         x,
         y
-      }
+      },
+      purity
     };
 
 
@@ -102,21 +148,20 @@ class Container extends Component {
         })
         break;
       default:
-        console.log("ain't nuttin comin. let's pack em up and go home");
+        console.log("ain't nuttin comin. let's pack em up and ride home");
     }
     this.gitem();
     console.log("it is done, My Liege");
   };
 
-  beGoofy = event => {
-    event.preventDefault();
-    console.log("you got me!")
-  }
-
   mapToggle = event => {
     event.preventDefault();
     console.log("mapToggle");
     this.setState({ map: !this.state.map });
+  }
+
+  updateLocations = locations => {
+    console.log("locations: ", locations);
   }
 
   render() {
@@ -127,6 +172,9 @@ class Container extends Component {
         <Map
           state={this.state}
           mapToggle={this.mapToggle}
+          updateGlobalState={this.updateGlobalState}
+          createMiner={this.createMiner}
+          findMap={this.findMap}
         />
       )
     } else {
@@ -137,11 +185,11 @@ class Container extends Component {
             minerLocation={this.state.minerLocation}
             handleFormSubmit={this.handleFormSubmit}
             handleInputChange={this.handleInputChange}
-            goofy={this.beGoofy}
             mapToggle={this.mapToggle}
           />
           <SavedList
             results={this.state.responseArray}
+            locations={this.updateLocations}
           />
         </div>
       );

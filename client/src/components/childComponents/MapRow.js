@@ -1,26 +1,42 @@
 import React, {Component} from "react";
-import { Toast, Modal, Button } from "react-materialize";
+import { Modal } from "react-materialize";
+import Input from "../buttons/Input";
+import API from "../../utils/API";
 
 class MapRow extends Component {
   state = {
     series: this.props.series(),
-    minerName: ""
+    upState: this.props.state,
+
   }
 
   componentDidMount = () => {
-    // console.log("map row this.props.series: ", this.props.series);
-    // console.log("series: ", this.props.series());
+    // call miner if there is one
+    console.log("mapRow props: ", this.props);
     
-    // console.log("rowData: ", this.props.rowData);
+  }
+
+  getMiner = location => {
+    // console.log("getMiner location: ", location);
+    // API.get({
+    //   minerLocation: {
+    //     x: location.column,
+    //     y: location.row
+    //   }
+    // })
+    // .then(response => {
+    //   console.log("getMiner response: ", response);
+    // })
+    // .catch(err => console.log("getMiner error: ", err));
+  }
+  
+  depleteMine = mine => {
+    return 1 - mine
   }
   
   getBig = event => {
     event.preventDefault();
-    console.log("event.target: ", event.target);
-    console.log("event.target.name: ", event.target.getAttribute("name"));
-    console.log("event.target.value: ", event.target.getAttribute("value"));
-    console.log("event.target.column: ", event.target.getAttribute("column"));
-    console.log("event.target.row: ", event.target.getAttribute("row"));
+    console.log("get big event.target: ", event.target);
     this.props.state.globalState.updateGlobalState("minerName", event.target.getAttribute("value"))
     
   }
@@ -33,6 +49,10 @@ class MapRow extends Component {
     })
   }
 
+  modalSubmit = event => {
+    event.preventDefault();
+    console.log("modal has been submitted");
+  }
   
   render() {
     return(
@@ -43,24 +63,48 @@ class MapRow extends Component {
         }}
       >
         {this.state.series.map(pixel => {
-          // console.log("pixel: ", pixel);
-          let red = Math.floor(this.props.rowData[pixel]*255);
-          let green = Math.floor(this.props.rowData[pixel]*200);
-          let blue = Math.floor(this.props.rowData[pixel]*100);
+          console.log("pixel: ", pixel);
+          let location = {};
+          location.column = pixel;
+          location.row = this.props.row;
+          // if()
+          this.getMiner(location)
+          let red = Math.floor(255 - this.props.rowData[pixel] * 255 - 50);
+          let green = Math.floor(this.props.rowData[pixel] * 200 + 50);
+          let blue = Math.floor(this.props.rowData[pixel] * 200 - 120);
           let pixelSize = this.props.mapSize / this.props.detail;
+          let shadow = 0;
+          let shadowFriend = 0;
           return(
             <div
               key={Math.floor(Math.random() * 10000000)}
               style={{
                 display: "inline-block",
-                marginTop: "-2px",
+                marginTop: "-1.9px",
                 padding: 0
               }}
             >
               <Modal
-                header="you wanna mine here?"
+                onSubmit={this.modalSubmit}
+                header="name your mine"
+                style={{
+                  zIndex: 1,
+                  margin: 0,
+                  padding: 0
+                }}
+                children={
+                  <Input
+                    state={this.state}
+                    updateGlobalState={this.props.updateGlobalState}
+                    createMiner={this.props.createMiner}
+                    column={pixel}
+                    row={this.props.row}
+                    purity={this.props.rowData[pixel]}
+                    submit={this.getBig}
+                  />
+                }
                 trigger={
-                  <figure
+                  <div
                     row={this.props.row}
                     column={pixel}
                     className="pixel"
@@ -73,13 +117,18 @@ class MapRow extends Component {
                       width: pixelSize,
                       margin: 0,
                       padding: 0,
-                      display: "inline-block"
+                      display: "inline-block",
+                      fontSize: "10px",
+                      zIndex: 10,
+                      boxShadow: `0 0 ${shadow} ${shadowFriend}em gray inset`
                     }}
                     onMouseEnter={() => {
-                      window.Materialize.toast(
-                        `row: ${this.props.row}
-                        column: ${pixel}
-                        richness: ${Math.floor(this.props.rowData[pixel]*1000)/10}%`)
+                      if(this.props.rowData[pixel]) {
+                        window.Materialize.toast(
+                          `row: ${this.props.row}
+                          column: ${pixel}
+                          richness: ${Math.floor(this.props.rowData[pixel]*1000)/10}%`)
+                      }
                     }}
                     onMouseOut={() => {
                       const toast = document.querySelector('#toast-container>.toast');
@@ -87,29 +136,9 @@ class MapRow extends Component {
                         toast.remove();
                       }
                     }}
-                    onClick={this.getBig}
-                  />
+                  ></div>
                 }
-              >
-                <form 
-                  onSubmit={event => { 
-                    event.preventDefault();
-                    let name = this.state.minerName;
-                    let x = this.props.state.globalState.minerLocationX;
-                    let y = this.props.state.globalState.minerLocationY;
-                    console.log("create a mine props: ", this.props.state);
-                    this.props.state.globalState.createMiner(name, x, y);
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="mine name"
-                    onChange={this.minerName}
-                    name="minerName"
-                    // value={this.props.state.globalState.minerName}
-                  />
-                </form>
-              </Modal>
+              />
             </div>
           )
         })}

@@ -1,5 +1,19 @@
-THE MAP
+TODO List
+link the miner to the map
 
-the brighter pixels give more ore per cycle but run out sooner
 
-the dimmer pixels give less per cycle but last longer and provide more over the life of the mine
+ICE BOX
+once a miner is in place and up to a certain level of production create a way to expand into neighboring pixels
+  expansions cost less than the initial so they drive down the average cost of the mine complex
+  place a limiting factor on expansions to discourage them from exceeding a certain size
+  
+add an inset box-shadow to each pixel which corresponds to the depletion of the mine
+  as it depletes the color darkens and the shadow expands toward the center
+
+create transport network
+  build hubs and spokes to connect the mines to the storage facility and from there to the launch facility
+
+storage facility
+  linked to by transport hub
+  stores ore before transporting to the launch facility
+
