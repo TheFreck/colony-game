@@ -1,29 +1,45 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import SearchForm from "./childComponents/SearchForm";
 import Map from "./childComponents/Map";
 import API from "../utils/API";
 import SavedList from "./childComponents/SavedList";
 
-class Container extends Component {
+class Container extends PureComponent {
   state = {
+    list: [],
     map: false,
+    mapUp: false,
     minerName: "",
     minerLocationX: 0,
     minerLocationY: 0,
     responseObject: {},
     responseArray: [],
-    minerLocationArray: []
+    minerLocationArray: [],
+    updateName: event => {
+      console.log("event: ", event);
+      console.log("event.target: ", event.target);
+      this.setState({
+        [event.target.name]: event.target.value
+      })
+    }
   };
 
-  componentDidMount() {
+
+  componentDidMount = () => {
     // console.log("it's off to the races");
-    let list = [];
-    for(let i=0; i<10; i++) {
-      list.push(i);
-    }
-    console.log("list: ", list);
-    this.gitem();
+    console.log("list: ", this.state.list);
   };
+  
+  componentWillMount = () => {
+    console.log("first: ", this.state.list);
+    let list = this.state.list;
+    for(let i=0; i<this.state.detail; i++) {
+      list.push(i);
+      this.setState({list})
+      console.log("loop list: ", this.state.list);
+    }
+    this.gitem();
+  }
   
   gitem = () => {
     API.getMany()

@@ -1,9 +1,9 @@
-import React, {Component} from "react";
+import React, {Component, PureComponent} from "react";
 import { Modal } from "react-materialize";
 import Input from "../buttons/Input";
 import API from "../../utils/API";
 
-class MapRow extends Component {
+class MapRow extends PureComponent {
   state = {
     series: this.props.series(),
     upState: this.props.state,
@@ -12,7 +12,7 @@ class MapRow extends Component {
 
   componentDidMount = () => {
     // call miner if there is one
-    console.log("mapRow props: ", this.props);
+    // console.log("mapRow props: ", this.props);
     
   }
 
@@ -53,8 +53,22 @@ class MapRow extends Component {
     event.preventDefault();
     console.log("modal has been submitted");
   }
+
+  handleInputChange = event => {
+    event.preventDefault();
+    this.setState({ [event.target.name]: event.target.value });
+  }
+
+  handleFormSubmit = event => {
+    event.preventDefault();
+    console.log("this.state.minerName: ", this.state.minerName);
+    console.log("this.props.row: ", this.props.row);
+    console.log("this.props.column: ", this.props.column);
+    this.props.createMiner(this.state.minerName, this.props.row, this.props.column, this.props.purity);
+  }
   
   render() {
+    console.log("mapRow render")
     return(
       <div
         style={{
@@ -63,7 +77,7 @@ class MapRow extends Component {
         }}
       >
         {this.state.series.map(pixel => {
-          console.log("pixel: ", pixel);
+          // console.log("pixel: ", pixel);
           let location = {};
           location.column = pixel;
           location.row = this.props.row;
@@ -101,6 +115,10 @@ class MapRow extends Component {
                     row={this.props.row}
                     purity={this.props.rowData[pixel]}
                     submit={this.getBig}
+                    placeholder="name your mine"
+                    named="minerName"
+                    change={this.handleInputChange}
+                    submit={this.handleFormSubmit}
                   />
                 }
                 trigger={

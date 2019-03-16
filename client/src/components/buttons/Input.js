@@ -1,41 +1,19 @@
-import React, {Component} from "react";
+import React from "react";
 
-class Input extends Component {
-  state ={
-    upstate: this.props.state,
-    minerName: ""
-  }
+const Input = props => {
 
-  handleInputChange = event => {
-    event.preventDefault();
-    this.setState({ [event.target.name]: event.target.value });
-  }
+  return(
+    // <div>pixie dust</div>
+    <form onSubmit={props.submit}>
+      <input
+        type="text"
+        placeholder={props.placeholder}
+        onChange={props.change}
+        name={props.named}
+      />
+    </form>
+  )
 
-  handleFormSubmit = event => {
-    event.preventDefault();
-    console.log("this.state.minerName: ", this.state.minerName);
-    console.log("this.props.row: ", this.props.row);
-    console.log("this.props.column: ", this.props.column);
-    this.props.createMiner(this.state.minerName, this.props.row, this.props.column, this.props.purity);
-  }
-
-  componentDidMount = () => {
-    // console.log("input field props: ", this.props)
-    // console.log("input this.state: ", this.state);
-  }
-  render() {
-    return(
-      // <div>pixie dust</div>
-      <form onSubmit={this.handleFormSubmit}>
-        <input
-          type="text"
-          placeholder="name your mine"
-          onChange={this.handleInputChange}
-          name="minerName"
-        />
-      </form>
-    )
-  }
 }
 
 export default Input;

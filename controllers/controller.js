@@ -20,73 +20,57 @@ module.exports = {
   },
   // get em all
   retrieve: (req, res) => {
-    console.log("controller retrieve: ", res._events);
+    let minersArray = [];
+    const addMiner = newMiner => {
+      minersArray.push(newMiner);
+      return minersArray;
+    }
     db.Miner
     .find()
     .then(miners => {
-      let minersArray = [];
-      for(let i=0; i<miners.length; i++) {
-        let miner = miners[i];
-        let miliDiff = (moment() - miner.updatedAt)/1000;
-        console.log("theMiners: ", miners);
-        console.log("miliDiff: ", miliDiff);
-        for(let j=miner.iteration; j<miliDiff; j++) {
-          let base = j/1000;
-          let exp = -2 * (j/1000-1);
-          let load = Math.pow(base, exp);
-          miner.fillLevel += load * miner.purity;
-          miner.iteration ++;
-          console.log(`load ${i}: ${load * miner.purity}`);
+      async function processArray(miners) {
+        for(const miner of miners) {
+          let miliDiff = (moment() - miner.updatedAt)/1000;
+          // console.log("theMiners: ", miners);
+          // console.log("miliDiff: ", miliDiff);
+          for(let j=miner.iteration; j<miliDiff; j++) {
+            let base = j/1000;
+            let exp = -2 * (j/1000-1);
+            let load = Math.pow(base, exp);
+            miner.fillLevel += load * miner.purity;
+            miner.iteration ++;
+            // console.log(`load ${i}: ${load * miner.purity}`);
+          }
+          // console.log("time passed: ", moment(moment() - miner.updatedAt).format("HH:mm:ss.SSS"));
+          let query = { _id: miner._id};
+          let update = {
+            fillLevel: miner.fillLevel,
+            iteration: miner.iteration
+          };
+          let options = { new: true }; 
+          // console.log("query: ", query);
+          // console.log("update: ", update);
+          // console.log("options: ", options);
+          await db.Miner
+          .findOneAndUpdate(query, update, options, (err, reaction) => {
+            if(err) throw err;
+          })
+          .then(reaction => {
+            // console.log("minersArray before addingMiner: ", minersArray);
+            // console.log("addingMiner: ", addMiner(reaction));
+            addMiner(reaction)
+            // console.log("minersArray after addingMiner: ", minersArray);
+          })
+          // console.log("dig finale minersArray: ", minersArray);
         }
-        // console.log("time passed: ", moment(moment() - miner.updatedAt).format("HH:mm:ss.SSS"));
-        let query = { _id: miner._id};
-        let update = {
-          fillLevel: miner.fillLevel,
-          iteration: miner.iteration
-        };
-        let options = { new: true }; 
-        console.log("query: ", query);
-        console.log("update: ", update);
-        console.log("options: ", options);
-        db.Miner
-        .findOneAndUpdate(query, update, options, (err, reaction) => {
-          console.log("dig update: ", reaction);
-          minersArray.push(reaction);
-          return minersArray;
-        })
-        .then(dbModel => {
-          console.log("dig finale dbModel: ", dbModel);
-          console.log("dig finale minersArray: ", minersArray);
-          return minersArray;
-        })
-        .catch(err => res.status(422).json(err));
-        console.log("minersArray after catch: ", minersArray);
+        return minersArray;
       }
-      console.log("minersArray just before sending it back: ", minersArray);
-      return minersArray;
+      processArray(miners)
+      .then(minersArray => {
+        console.log("minersArray just before sending it back: ", minersArray);
+        res.json(minersArray);
+      })
     })
-    //   async function dig() {
-
-    //     let anything = await miner.dig(dbModel);
-    //     return anything;
-    //   }
-    //   dig(dbModel)
-    //   .then(result => {
-    //     console.log("result: ", result);
-    //     res.json(result);
-    //   })
-    // })
-    // let minersArray = [1];
-    // for(i=0; i<dbModel.length; i++) {
-    //   miner.dig(dbModel[i], reply => {
-    //     console.log("controller reply: ", reply);
-    //     minersArray.push(reply);
-    //     console.log("minersArray loop: ", minersArray)
-    //   })
-    // }
-    // console.log("hit this shit!!!: minersArray: ", minersArray)
-    // res.json(minersArray);
-    // })
     .catch(err => res.status(422).json(err));
   },
   // making miner babies

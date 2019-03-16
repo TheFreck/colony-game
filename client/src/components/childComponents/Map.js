@@ -1,12 +1,14 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import MapRow from "./MapRow";
 import Button from "../buttons/Button";
 import API from "../../utils/API";
+const moment = require("moment");
 
-class Map extends Component {
+class Map extends PureComponent {
   state = {
     upState: this.props.state,
     mapName: "",
+    nameIt: "",
     xAxisSeed: [],
     yAxisSeed: [],
     mapOut: {},
@@ -15,8 +17,15 @@ class Map extends Component {
     padding: 30
   }
 
-  
-  generateMap = (detail, finishedMap) => {
+  shouldComponentUpdate(nextProps, nextState) {
+    
+    if (this.state.mapOut !== nextState.mapOut) {
+      return true;
+    }
+    return false;
+  }
+
+  generateMap = detail => {
     console.log("upState from map: ", this.state.upState);
     let xAxisSeed = [1];
     let yAxisSeed = [1];
@@ -60,11 +69,10 @@ class Map extends Component {
     this.setState({
       mapOut: mapOut
     });
-    finishedMap(mapOut);
   }
   
   componentWillMount = () => {
-    // console.log("map");
+    console.log("map");
     if(this.state.xAxisSeed) {
       this.generateMap(this.state.detail, finishedMap => {
         console.log("the map: ", finishedMap);
@@ -83,8 +91,9 @@ class Map extends Component {
   saveMap = event => {
     event.preventDefault();
     console.log("event.target: ", event.target);
+    console.log("this.props.state.mapName: ", this.props.state.mapName);
     let map = {
-      mapName: this.state.mapName,
+      mapName: this.props.state.mapName,
       x: this.state.xAxisSeed,
       y: this.state.yAxisSeed
     }
@@ -97,18 +106,21 @@ class Map extends Component {
 
 
 
-  handleChange = event => {
+  updateName = event => {
     event.preventDefault();
-    console.log("event.target.name: ", event.target.name);
+    let now = moment();
+    // console.log("event.target.name: ", event.target.name);
     console.log("event.target.value: ", event.target.value);
-    this.setState({ 
-      [event.target.name]: event.target.value 
-    })
+    // this.setState({ 
+    //   nameIt: event.target.value 
+    // })
+    this.state.upState.updateName(event)
   }
 
   render() {
     let mapSize = this.state.mapSize;
     let printMap = this.state.mapOut;
+    console.log("printMap");
     let array = [];
     for(let i=0; i<this.state.detail; i++) {
       array.push(i);
@@ -120,9 +132,8 @@ class Map extends Component {
         <form onSubmit={this.saveMap}>
           <input
             type="text"
-            onChange={this.handleChange}
+            onChange={this.updateName}
             name="mapName"
-            value={this.state.mapName}
           />
           <Button
             click={this.saveMap}

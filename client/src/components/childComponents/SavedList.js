@@ -4,11 +4,11 @@ import React from "react";
 
 const SavedList = props => {
   let results = props.results;
-  console.log("saved results: ", results);
+  // console.log("saved results: ", results);
   return(
     <div className="minerDisply">
       {results.map(result => {
-        console.log("saved list result: ", result);
+        // console.log("saved list result: ", result);
         return (
           <div 
             className="miner" 
