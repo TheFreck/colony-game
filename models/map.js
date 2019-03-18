@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const models = require("../models");
+const miners = require("../models/miner");
 
 const mapSchema = new Schema({
   mapName: {
@@ -15,10 +15,10 @@ const mapSchema = new Schema({
     type: Array,
     required: true
   },
-  // miners: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: models.Miner
-  // }
+  detail: {
+    type: Number,
+    required: true
+  }
 })
 
 const Map = mongoose.model("Map", mapSchema);

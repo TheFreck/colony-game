@@ -3,7 +3,7 @@ import { Modal } from "react-materialize";
 import Input from "../buttons/Input";
 import API from "../../utils/API";
 
-class MapRow extends PureComponent {
+class MapRow extends Component {
   state = {
     series: this.props.series(),
     upState: this.props.state,
@@ -37,7 +37,7 @@ class MapRow extends PureComponent {
   getBig = event => {
     event.preventDefault();
     console.log("get big event.target: ", event.target);
-    this.props.state.globalState.updateGlobalState("minerName", event.target.getAttribute("value"))
+    this.props.state.upState.updateGlobalState("minerName", event.target.getAttribute("value"))
     
   }
 
@@ -61,10 +61,17 @@ class MapRow extends PureComponent {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    console.log("this.state.minerName: ", this.state.minerName);
-    console.log("this.props.row: ", this.props.row);
-    console.log("this.props.column: ", this.props.column);
-    this.props.createMiner(this.state.minerName, this.props.row, this.props.column, this.props.purity);
+    console.log("event.target: ", event.target);
+    console.log("id: ", this.props.mapId);
+    this.props.createMiner(this.state.minerName, event.target.getAttribute("column"), this.props.row, this.props.mapId, event.target.getAttribute("purity"));
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    
+    if (this.props.mapOut !== nextProps.mapOut) {
+      return true;
+    }
+    return false;
   }
   
   render() {
@@ -78,11 +85,6 @@ class MapRow extends PureComponent {
       >
         {this.state.series.map(pixel => {
           // console.log("pixel: ", pixel);
-          let location = {};
-          location.column = pixel;
-          location.row = this.props.row;
-          // if()
-          this.getMiner(location)
           let red = Math.floor(255 - this.props.rowData[pixel] * 255 - 50);
           let green = Math.floor(this.props.rowData[pixel] * 200 + 50);
           let blue = Math.floor(this.props.rowData[pixel] * 200 - 120);
@@ -91,10 +93,9 @@ class MapRow extends PureComponent {
           let shadowFriend = 0;
           return(
             <div
-              key={Math.floor(Math.random() * 10000000)}
+              key={`row-C${pixel}`}
               style={{
                 display: "inline-block",
-                marginTop: "-1.9px",
                 padding: 0
               }}
             >
@@ -102,9 +103,9 @@ class MapRow extends PureComponent {
                 onSubmit={this.modalSubmit}
                 header="name your mine"
                 style={{
-                  zIndex: 1,
+                  // zIndex: 1,
                   margin: 0,
-                  padding: 0
+                  padding: 0,
                 }}
                 children={
                   <Input
@@ -126,7 +127,7 @@ class MapRow extends PureComponent {
                     row={this.props.row}
                     column={pixel}
                     className="pixel"
-                    key={pixel}
+                    key={`pixel-C${pixel}-R${this.props.row}`}
                     name={this.props.rowData[pixel]}
                     value={this.props.rowData[pixel]}
                     style={{
@@ -135,10 +136,11 @@ class MapRow extends PureComponent {
                       width: pixelSize,
                       margin: 0,
                       padding: 0,
-                      display: "inline-block",
-                      fontSize: "10px",
                       zIndex: 10,
-                      boxShadow: `0 0 ${shadow} ${shadowFriend}em gray inset`
+                      boxShadow: `0 0 ${shadow} ${shadowFriend}em gray inset`,
+                      display: "inline-block",
+                      outline: `1px solid rgb(${red},${green},${blue})`,
+                      verticalAlign: "top"
                     }}
                     onMouseEnter={() => {
                       if(this.props.rowData[pixel]) {
@@ -154,7 +156,7 @@ class MapRow extends PureComponent {
                         toast.remove();
                       }
                     }}
-                  ></div>
+                  />
                 }
               />
             </div>

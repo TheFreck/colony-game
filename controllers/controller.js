@@ -5,13 +5,10 @@ const moment = require("moment");
 module.exports = {
   // get one
   find: (req, res) => {
-    // console.log("find: ", req.params.query);
     db.Miner
       .find({ minerName: req.params.query })
       .then(dbModel => {
-        // console.log("find dbModel: ", dbModel);
         miner.dig(dbModel, reply => {
-          // console.log("controller reply: ", reply);
           let newModel = reply;
           return this.update(newModel);
         })
@@ -31,17 +28,13 @@ module.exports = {
       async function processArray(miners) {
         for(const miner of miners) {
           let miliDiff = (moment() - miner.updatedAt)/1000;
-          // console.log("theMiners: ", miners);
-          // console.log("miliDiff: ", miliDiff);
           for(let j=miner.iteration; j<miliDiff; j++) {
             let base = j/1000;
-            let exp = -2 * (j/1000-1);
+            let exp = -2 * (base-1);
             let load = Math.pow(base, exp);
             miner.fillLevel += load * miner.purity;
             miner.iteration ++;
-            // console.log(`load ${i}: ${load * miner.purity}`);
           }
-          // console.log("time passed: ", moment(moment() - miner.updatedAt).format("HH:mm:ss.SSS"));
           let query = { _id: miner._id};
           let update = {
             fillLevel: miner.fillLevel,
@@ -56,12 +49,8 @@ module.exports = {
             if(err) throw err;
           })
           .then(reaction => {
-            // console.log("minersArray before addingMiner: ", minersArray);
-            // console.log("addingMiner: ", addMiner(reaction));
             addMiner(reaction)
-            // console.log("minersArray after addingMiner: ", minersArray);
           })
-          // console.log("dig finale minersArray: ", minersArray);
         }
         return minersArray;
       }
@@ -76,9 +65,9 @@ module.exports = {
   // making miner babies
   create: (req, res) => {
     console.log("create: ", req.body);
-    miner.createMiner(req.body, (msg, respond) => {
-      console.log(msg, respond);
-    });
+    // miner.createMiner(req.body, (msg, respond) => {
+    //   console.log(msg, respond);
+    // });
     db.Miner
       .create(req.body)
       .then(dbModel => res.json(dbModel))

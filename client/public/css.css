@@ -32,18 +32,5 @@ body {
 
 
 .mapDisplay {
-  width: 820px;
-  height: 820px;
   box-shadow: 0 0 50px 2px gray inset;
-  margin: 20px;
-}
-
-.mapRow {
-  position: relative;
-  /* height: 8px; */
-}
-
-.pixel {
-  position: relative;
-  display: inline-block;
 }

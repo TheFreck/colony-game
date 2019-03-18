@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const map = require("../models/map")
 
 const minerSchema = new Schema({
   minerName: {
@@ -34,6 +35,10 @@ const minerSchema = new Schema({
     type: Number,
     required: true,
     default: 0
+  },
+  map: {
+    type: Schema.Types.ObjectId,
+    ref: map
   }
 },
 {

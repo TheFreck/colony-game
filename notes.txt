@@ -1,7 +1,6 @@
 TODO List
 link the miner to the map
-integrate Redux
-figure out why it re-renders the map everytime a key is pressed in the name field
+integrate Redux 
 
 ICE BOX
 once a miner is in place and up to a certain level of production create a way to expand into neighboring pixels

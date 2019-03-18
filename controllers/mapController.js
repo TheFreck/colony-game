@@ -13,8 +13,13 @@ module.exports = {
     res.send("map update");
   },
   find: (req, res) => {
-    console.log("map find req.body: ", req.body);
-    res.send("map find");
+    console.log("map find req.body: ", req.params);
+    db.Map.find({ mapName: req.params.query })
+    .then(response => {
+      console.log("map find response: ");
+      console.log(response);
+      res.send(response);
+    })
   },
   remove: (req, res) => {
     console.log("map remove req.body: ", req.body);

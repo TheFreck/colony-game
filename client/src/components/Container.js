@@ -7,15 +7,15 @@ import SavedList from "./childComponents/SavedList";
 class Container extends PureComponent {
   state = {
     list: [],
-    map: false,
-    mapUp: false,
+    map: true,
+    mapId: "",
     minerName: "",
     minerLocationX: 0,
     minerLocationY: 0,
     responseObject: {},
     responseArray: [],
     minerLocationArray: [],
-    updateName: event => {
+    updateGlobal: event => {
       console.log("event: ", event);
       console.log("event.target: ", event.target);
       this.setState({
@@ -70,15 +70,17 @@ class Container extends PureComponent {
     this.setState({ [name]: value });
   }
 
-  createMiner = (name, x, y, purity) => {
+  createMiner = (minerName, minerLocationX, minerLocationY, map, purity) => {
     console.log("hit global state createMiner: ", purity)
 
     let stateObject = {
-      minerLocationX: x,
-      minerLocationY: y,
-      minerName: name,
+      minerLocationX,
+      minerLocationY,
+      minerName,
+      map,
       purity
     }
+    console.log("miner to be created: ", stateObject);
     this.setState(stateObject)
     stateObject.crud = "Post";
     this.doIt(stateObject)
@@ -119,6 +121,7 @@ class Container extends PureComponent {
     let x = stateObject.minerLocationX;
     let y = stateObject.minerLocationY;
     let purity = stateObject.purity;
+    let map = stateObject.map;
     let crud = stateObject.crud;
     console.log("x minerName y: ", this.state);
 
@@ -129,7 +132,8 @@ class Container extends PureComponent {
         x,
         y
       },
-      purity
+      purity,
+      map
     };
 
 
@@ -181,6 +185,7 @@ class Container extends PureComponent {
   }
 
   render() {
+    console.log("🌎")
     // if map is false in state then display saved list
     // otherwise display map
     if(this.state.map) {

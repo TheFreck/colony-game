@@ -34,6 +34,6 @@ export default {
   findMap: query => {
     console.log("findMap: ");
     console.log(query);
-    return axios.get("api/mapRoutes", query);
+    return axios.get(`api/mapRoutes/${query}`);
   }
 };
