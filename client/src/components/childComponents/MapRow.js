@@ -1,4 +1,4 @@
-import React, {Component, PureComponent} from "react";
+import React, { Component } from "react";
 import { Modal } from "react-materialize";
 import Input from "../buttons/Input";
 import API from "../../utils/API";

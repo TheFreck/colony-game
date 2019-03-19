@@ -4,11 +4,11 @@ import axios from "axios";
 export default {
 
   // Miner routing
-  get: query => {
-    console.log("get: ", query);
-    return axios.get(`api/minerRoutes/${query}`);
+  getMiners: query => {
+    console.log("getMiners: ", query);
+    return axios.get(`api/minerRoutes/map/${query}`);
   },
-  getMany: () => {
+  getAll: () => {
     console.log("get all of them");
     return axios.get("api/minerRoutes/");
   },

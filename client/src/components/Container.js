@@ -1,10 +1,10 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component } from "react";
 import SearchForm from "./childComponents/SearchForm";
 import Map from "./childComponents/Map";
 import API from "../utils/API";
 import SavedList from "./childComponents/SavedList";
 
-class Container extends PureComponent {
+class Container extends Component {
   state = {
     list: [],
     map: true,
@@ -38,11 +38,11 @@ class Container extends PureComponent {
       this.setState({list})
       console.log("loop list: ", this.state.list);
     }
-    this.gitem();
+    // this.gitem();
   }
   
   gitem = () => {
-    API.getMany()
+    API.getAll()
     .then(response => {
       console.log("on mount response.data: ", response);
       console.log("container state: ", this.state);
@@ -185,7 +185,6 @@ class Container extends PureComponent {
   }
 
   render() {
-    console.log("🌎")
     // if map is false in state then display saved list
     // otherwise display map
     if(this.state.map) {

@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component } from "react";
 import MapRow from "./MapRow";
 import Button from "../buttons/Button";
 import API from "../../utils/API";
@@ -58,6 +58,12 @@ class Map extends Component {
       yAxisSeed: yAxisSeedPercent,
       detail
     })
+    let item = {};
+    item.target = {
+      name: "detail",
+      value: this.state.detail
+    }
+    this.state.upState.updateGlobal(item);
     let mapOut = {};
     for(let i=0; i<yAxisSeed.length; i++) {
       mapOut[i] = [];
@@ -133,6 +139,10 @@ class Map extends Component {
       this.setState({
         mapOut
       });
+      API.getMiners(response.data[0]._id)
+      .then(response => {
+        console.log("get miners response: ", response.data);
+      })
     })
   }
 
