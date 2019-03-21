@@ -1,4 +1,4 @@
 module.exports = {
-  controller: require("./controller"),
+  minerControl: require("./minerControl"),
   mapController: require("./mapController")
 };

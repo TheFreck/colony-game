@@ -1,17 +1,17 @@
 const router = require("express").Router();
-const controller = require("../../controllers/controller");
+const minerControl = require("../../controllers/minerControl");
 
 router.route("/map/:query")
-  .get(controller.getMiners);
+  .get(minerControl.getMiners);
   
 router.route("/")
-  .get(controller.retrieve)
-  .post(controller.create)
-  .put(controller.update);
+  .get(minerControl.retrieve)
+  .post(minerControl.create)
+  .put(minerControl.update);
 
 router.route("/:query")
-  .get(controller.find)
-  .delete(controller.remove);
+  .get(minerControl.find)
+  .delete(minerControl.remove);
 
 
 module.exports = router;

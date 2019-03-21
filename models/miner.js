@@ -36,6 +36,13 @@ const minerSchema = new Schema({
     required: true,
     default: 0
   },
+  depletion: {
+    type: Number,
+    min: 0,
+    max: 1,
+    required: true,
+    default: 0
+  },
   map: {
     type: Schema.Types.ObjectId,
     ref: map

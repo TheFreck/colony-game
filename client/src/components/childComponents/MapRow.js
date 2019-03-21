@@ -1,69 +1,14 @@
 import React, { Component } from "react";
 import { Modal } from "react-materialize";
 import Input from "../buttons/Input";
-import API from "../../utils/API";
+// import API from "../../utils/API";
 
 class MapRow extends Component {
   state = {
     series: this.props.series(),
     upState: this.props.state,
-
-  }
-
-  componentDidMount = () => {
-    // call miner if there is one
-    // console.log("mapRow props: ", this.props);
-    
-  }
-
-  getMiner = location => {
-    // console.log("getMiner location: ", location);
-    // API.get({
-    //   minerLocation: {
-    //     x: location.column,
-    //     y: location.row
-    //   }
-    // })
-    // .then(response => {
-    //   console.log("getMiner response: ", response);
-    // })
-    // .catch(err => console.log("getMiner error: ", err));
-  }
-  
-  depleteMine = mine => {
-    return 1 - mine
-  }
-  
-  getBig = event => {
-    event.preventDefault();
-    console.log("get big event.target: ", event.target);
-    this.props.state.upState.updateGlobalState("minerName", event.target.getAttribute("value"))
-    
-  }
-
-  minerName = event => {
-    event.preventDefault();
-    console.log("minerName hit: ", event.target.value);
-    this.setState({
-      [event.target.name]: event.target.value
-    })
-  }
-
-  modalSubmit = event => {
-    event.preventDefault();
-    console.log("modal has been submitted");
-  }
-
-  handleInputChange = event => {
-    event.preventDefault();
-    this.setState({ [event.target.name]: event.target.value });
-  }
-
-  handleFormSubmit = event => {
-    event.preventDefault();
-    console.log("event.target: ", event.target);
-    console.log("id: ", this.props.mapId);
-    this.props.createMiner(this.state.minerName, event.target.getAttribute("column"), this.props.row, this.props.mapId, event.target.getAttribute("purity"));
+    minerName: "",
+    minerDepletionArray: []
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -72,6 +17,39 @@ class MapRow extends Component {
       return true;
     }
     return false;
+  }
+
+  componentWillReceiveProps = nextProps => {
+    console.log("nextProps: ", nextProps);
+    this.setState({ minerDepletionArray: nextProps });
+  }
+
+  componentDidMount = () => {
+    // call miner if there is one
+    // console.log("mapRow props: ", this.props);
+    let minerDepletionArray = this.props.minerDepletionArray;
+    console.log(minerDepletionArray);
+    this.setState({
+      minerDepletionArray
+    })
+  }
+    
+  modalSubmit = event => {
+    event.preventDefault();
+    console.log("modal has been submitted");
+  }
+  
+  handleInputChange = event => {
+    event.preventDefault();
+    this.setState({ [event.target.name]: event.target.value });
+  }
+    
+  handleFormSubmit = event => {
+    event.preventDefault();
+    console.log("event.target: ", event.target);
+    console.log("id: ", this.props.mapId);
+    // this.props.state.upState.updateGlobalState("minerName", event.target.getAttribute("value"))
+    this.props.createMiner(this.state.minerName, event.target.getAttribute("column"), this.props.row, this.props.mapId, event.target.getAttribute("purity"));
   }
   
   render() {
@@ -91,6 +69,7 @@ class MapRow extends Component {
           let pixelSize = this.props.mapSize / this.props.detail;
           let shadow = 0;
           let shadowFriend = 0;
+          // for()
           return(
             <div
               key={`row-C${pixel}`}
@@ -115,7 +94,6 @@ class MapRow extends Component {
                     column={pixel}
                     row={this.props.row}
                     purity={this.props.rowData[pixel]}
-                    submit={this.getBig}
                     placeholder="name your mine"
                     named="minerName"
                     change={this.handleInputChange}

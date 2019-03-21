@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import MapRow from "./MapRow";
 import Button from "../buttons/Button";
 import API from "../../utils/API";
-const moment = require("moment");
+// const moment = require("moment");
 
 class Map extends Component {
   state = {
@@ -14,9 +14,10 @@ class Map extends Component {
     mapOut: {},
     detail: 50,
     mapSize: 600,
-    padding: 30
+    padding: 30,
+    minerLocationArray: []
   }
-
+  
   shouldComponentUpdate(nextProps, nextState) {
     
     if (this.state.mapOut !== nextState.mapOut) {
@@ -24,9 +25,18 @@ class Map extends Component {
     }
     return false;
   }
-
+  
+  componentWillMount = () => {
+    console.log("map");
+    if(this.state.xAxisSeed) {
+      this.generateMap(this.state.detail, finishedMap => {
+        console.log("the map: ", finishedMap);
+      })
+    }
+  }
+  
   generateMap = detail => {
-    console.log("upState from map: ", this.state.upState);
+    // console.log("upState from map: ", this.state.upState);
     let xAxisSeed = [1];
     let yAxisSeed = [1];
     let xAxisSeedPercent = [];
@@ -40,7 +50,7 @@ class Map extends Component {
       yAxisSeed.push(newY);
     }
     // console.log("xAxisSeed: ", xAxisSeed);
-    console.log("x min: ", Math.min(...xAxisSeed));
+    // console.log("x min: ", Math.min(...xAxisSeed));
     for(let i=0; i<detail; i++) {
       let xPercentNumer = xAxisSeed[i] - (Math.min(...xAxisSeed) - .01);
       let xPercentDenom = Math.max(...xAxisSeed) - Math.min(...xAxisSeed);
@@ -76,15 +86,78 @@ class Map extends Component {
       mapOut: mapOut
     });
   }
-  
-  componentWillMount = () => {
-    console.log("map");
-    if(this.state.xAxisSeed) {
-      this.generateMap(this.state.detail, finishedMap => {
-        console.log("the map: ", finishedMap);
-      })
+
+  createMiner = (minerName, minerLocationX, minerLocationY, map, purity) => {
+    // console.log("hit global state createMiner: ", purity)
+
+    let stateObject = {
+      minerLocationX,
+      minerLocationY,
+      minerName,
+      map,
+      purity
     }
+    // console.log("miner to be created: ", stateObject);
+    this.setState(stateObject)
+    stateObject.crud = "Post";
+    this.doIt(stateObject)
   }
+
+  doIt = stateObject => {
+    let minerName = stateObject.minerName;
+    let x = stateObject.minerLocationX;
+    let y = stateObject.minerLocationY;
+    let purity = stateObject.purity;
+    let map = stateObject.map;
+    let crud = stateObject.crud;
+    // console.log("x minerName y: ", this.state);
+
+    let minerObject = {
+      minerName,
+      minerLocation: {
+        x,
+        y
+      },
+      purity,
+      map
+    };
+
+    switch(crud) {
+      case "Get":
+        API.get(minerName)
+        .then(response => {
+          console.log("response; ", response);
+          this.setState({ responseObject: response })
+        })
+        break;
+      case "Post":
+        console.log("switch minerObject: ", minerObject);
+        API.post(minerObject)
+        .then(response => {
+          console.log("response: ", response);
+          this.setState({ responseObject: response })
+        })
+        break;
+      case "Put":
+        API.put(minerObject)
+        .then(response => {
+          console.log("response: ", response);
+          this.setState({ responseObject: response })
+        })
+        break;
+      case "Delete":
+        API.delete(minerName)
+        .then(response => {
+          console.log("response: ", response);
+          this.setState({ responseObject: response })
+        })
+        break;
+      default:
+        console.log("ain't nuttin comin. let's pack em up and ride home");
+    }
+    console.log("it is done, My Liege");
+  };
+  
 
   series = () => {
     let list = [];
@@ -96,8 +169,8 @@ class Map extends Component {
 
   saveMap = event => {
     event.preventDefault();
-    console.log("event.target: ", event.target);
-    console.log("this.props.state.mapName: ", this.props.state.mapName);
+    // console.log("event.target: ", event.target);
+    // console.log("this.props.state.mapName: ", this.props.state.mapName);
     let map = {
       mapName: this.props.state.mapName,
       x: this.state.xAxisSeed,
@@ -106,7 +179,7 @@ class Map extends Component {
     }
     API.saveMap(map)
     .then(response => {
-      console.log("save map response.data: ", response.data._id);
+      // console.log("save map response.data: ", response.data._id);
       // let currentEvent;
       // currentEvent.target.name = "mapId";
       // currentEvent.target.value = response.data._id;
@@ -118,10 +191,10 @@ class Map extends Component {
 
   getSavedMap = event => {
     event.preventDefault();
-    console.log("getSavedMapthis.state.mapName: ",this.state.mapName);
+    // console.log("getSavedMapthis.state.mapName: ",this.state.mapName);
     API.findMap(this.state.mapName)
     .then(response => {
-      console.log("get saved map response.data[0]: ", response.data[0]);
+      // console.log("get saved map response.data[0]: ", response.data[0]);
       this.setState({
         xAxisSeed: response.data[0].x,
         yAxisSeed: response.data[0].y,
@@ -141,14 +214,30 @@ class Map extends Component {
       });
       API.getMiners(response.data[0]._id)
       .then(response => {
-        console.log("get miners response: ", response.data);
+        // console.log("get miners response: ", response.data);
+        let minersData = response.data;
+        let minerDepletionArray = [];
+        for(let indiMiner of minersData) {
+          console.log("indiMiner: ", indiMiner);
+          console.log(indiMiner.minerName, indiMiner.depletion);
+          minerDepletionArray.push({ 
+            x: indiMiner.minerLocation.x,
+            y: indiMiner.minerLocation.y,
+            depletion: indiMiner.depletion 
+          })
+        }
+        console.log("minerDepletionArray: ", minerDepletionArray);
+        this.setState({
+          ...this.state,
+          minerDepletionArray
+        })
       })
     })
   }
 
   updateName = event => {
     event.preventDefault();
-    console.log("event.target.value: ", event.target.value);
+    // console.log("event.target.value: ", event.target.value);
     this.setState({ [event.target.name]: event.target.value });
     this.state.upState.updateGlobal(event);
   }
@@ -200,8 +289,7 @@ class Map extends Component {
             padding: this.state.padding,
             margin: "20px"
           }}
-        >
-          {array.map(row => {
+        >{array.map(row => {
             counter ++;
             return(
               <MapRow
@@ -222,12 +310,13 @@ class Map extends Component {
                 mapSize={this.state.mapSize}
                 state={this.state}
                 updateGlobalState={this.props.updateGlobalState}
-                createMiner={this.props.createMiner}
+                createMiner={this.createMiner}
                 mapOut={this.state.mapOut}
+                minerDepletionArray={this.state.minerDepletionArray}
+                // pass in an indication of mine depletion
               />
             )
-          })}
-        </div>
+          })}</div>
       </div>
     )
   }
